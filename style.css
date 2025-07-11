@@ -1,0 +1,666 @@
+/* --- Variables CSS pour une maintenance facile --- */
+:root {
+    --color-dark-primary: #1a1a2e; /* Presque noir, bleu très foncé */
+    --color-dark-secondary: #21213b; /* Bleu foncé légèrement plus clair */
+    --color-text-light: #e0e0e0;
+    --color-accent-gold: #c28b3d; /* Or vieilli */
+    --color-accent-silver: #a9a9a9; /* Argent terni */
+    --color-error: #e74c3c;
+
+    --font-heading: 'Cinzel', serif;
+    --font-body: 'Merriweather', serif;
+}
+
+/* --- Styles Généraux et Body --- */
+body {
+    font-family: var(--font-body);
+    background: var(--color-dark-primary) url('assets/images/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: var(--color-text-light);
+    margin: 0;
+    overflow-x: hidden; /* Empêche le défilement horizontal indésirable */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column; /* Permet un footer ou lecteur en bas */
+    position: relative; /* Pour positionner le lecteur */
+}
+
+/* --- Overlay d'accès initial --- */
+.access-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9); /* Fond sombre pour le mystère */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
+}
+
+.access-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none; /* Désactive les interactions une fois invisible */
+}
+
+.access-panel {
+    background: var(--color-dark-secondary);
+    border: 1px solid var(--color-accent-gold);
+    border-radius: 15px;
+    padding: 60px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(194, 139, 61, 0.3);
+    animation: scaleIn 0.8s ease-out;
+    max-width: 500px;
+}
+
+.access-title {
+    font-family: var(--font-heading);
+    font-size: 3em;
+    color: var(--color-accent-gold);
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(194, 139, 61, 0.6);
+}
+
+.access-subtitle {
+    font-size: 1.2em;
+    color: var(--color-text-light);
+    margin-bottom: 30px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.access-panel input[type="password"] {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-accent-silver);
+    border-radius: 8px;
+    padding: 15px 20px;
+    color: var(--color-text-light);
+    font-size: 1.1em;
+    width: 100%;
+    max-width: 300px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    outline: none;
+}
+
+.access-panel input[type="password"]:focus {
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 0 3px rgba(194, 139, 61, 0.3);
+}
+
+.btn-primary, .btn-secondary {
+    background-color: var(--color-accent-gold);
+    color: var(--color-dark-primary);
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: none;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    background-color: #d19a4e;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+}
+
+.error-message {
+    color: var(--color-error);
+    margin-top: 20px;
+    font-size: 0.95em;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.error-message.show {
+    opacity: 1;
+}
+
+.hidden {
+    display: none !important; /* Force la disparition */
+}
+
+/* --- Contenu principal du site --- */
+.main-content {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+.main-content.visible {
+    opacity: 1;
+}
+
+/* --- Header avec profil et date/heure --- */
+.site-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 20px 40px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+    position: sticky;
+    top: 0;
+    z-index: 500;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 30px;
+    padding: 8px 20px 8px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-accent-gold);
+}
+
+.datetime-info {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Courier New', monospace; /* Police numérique/rétro */
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+/* --- Section Bibliothèque --- */
+.library-section {
+    padding: 50px 0;
+    text-align: center;
+    overflow: hidden; /* Cache le débordement pour les livres */
+}
+
+.library-title {
+    font-family: var(--font-heading);
+    font-size: 3.5em;
+    color: var(--color-accent-gold);
+    text-shadow: 0 0 15px rgba(194, 139, 61, 0.7);
+    margin-bottom: 60px;
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.library-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: var(--color-accent-silver);
+    box-shadow: 0 0 10px rgba(169, 169, 169, 0.5);
+}
+
+.book-shelf {
+    display: flex;
+    flex-wrap: nowrap; /* Empêche les livres de passer à la ligne */
+    overflow-x: auto; /* Permet le défilement horizontal */
+    padding: 30px 5vw; /* Padding sur les côtés pour voir les livres partiellement */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+    gap: 60px; /* Grand espace entre les livres */
+    align-items: flex-end; /* Alignement sur le bas de l'étagère */
+}
+
+.book-shelf::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome, Safari, Opera */
+}
+
+.book {
+    flex-shrink: 0;
+    width: 250px; /* Plus grand */
+    height: 350px;
+    perspective: 1000px; /* Pour les transformations 3D */
+    cursor: pointer;
+    transform-style: preserve-3d; /* Nécessaire pour les rotations 3D */
+    transition: transform 0.6s ease-out, box-shadow 0.4s ease-out;
+    position: relative; /* Pour le texte au survol */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4); /* Ombre par défaut */
+}
+
+.book:hover {
+    transform: translateY(-20px) rotateY(5deg) scale(1.05); /* Effet de soulèvement et légère rotation */
+    box-shadow: 0 25px 40px rgba(0, 0, 0, 0.6); /* Ombre plus intense */
+}
+
+.book-cover {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease-out;
+    transform-origin: left center; /* Point de pivot pour l'ouverture */
+}
+
+.book-front, .book-spine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px; /* Bords légèrement arrondis */
+    backface-visibility: hidden; /* Cache l'arrière de la face */
+}
+
+.book-front {
+    width: 100%;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    background-color: var(--color-dark-secondary); /* Fallback */
+}
+
+.book-spine {
+    width: 20px; /* Épaisseur du dos du livre */
+    background-color: #3b2f4f; /* Couleur du dos du livre */
+    transform: rotateY(90deg) translateX(10px);
+    transform-origin: left center;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.book-title-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px 10px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    color: var(--color-accent-gold);
+    font-family: var(--font-heading);
+    font-size: 1.1em;
+    font-weight: 700;
+    text-align: center;
+    text-shadow: 0 0 8px rgba(194, 139, 61, 0.5);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* --- Modal d'ouverture de livre --- */
+.book-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95); /* Très sombre */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease;
+}
+
+.book-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.book-modal {
+    background: var(--color-dark-secondary);
+    border: 2px solid var(--color-accent-gold);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(194, 139, 61, 0.4);
+    max-width: 900px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    transform: scale(0.7) translateY(50px);
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease; /* Animation "rebond" */
+}
+
+.book-modal-overlay.active .book-modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--color-accent-silver);
+    font-size: 2.2em;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.close-modal-btn:hover {
+    color: var(--color-accent-gold);
+    transform: rotate(90deg);
+}
+
+.book-cover-animation {
+    width: 200px;
+    height: 280px;
+    margin: 0 auto 30px;
+    perspective: 1000px;
+    position: relative;
+    overflow: hidden; /* Pour cacher le contenu avant le flip */
+    transition: height 0.6s ease;
+}
+
+.book-cover-animation .animated-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    transform-origin: left center;
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Animation de flip */
+}
+
+/* État d'ouverture du livre (flippé) */
+.book-cover-animation.flipped .animated-cover {
+    transform: rotateY(-180deg);
+}
+
+.book-password-prompt {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.book-password-prompt h3 {
+    font-family: var(--font-heading);
+    color: var(--color-accent-gold);
+    font-size: 1.4em;
+    margin-bottom: 20px;
+}
+
+.book-password-prompt input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-accent-silver);
+    border-radius: 8px;
+    padding: 12px 18px;
+    color: var(--color-text-light);
+    font-size: 1em;
+    width: 280px;
+    margin-right: 15px;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.book-password-prompt input:focus {
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 0 3px rgba(194, 139, 61, 0.3);
+}
+
+.btn-secondary { /* Réutilisation du style de bouton */
+    background-color: #5a7d7c; /* Vert-bleu sombre */
+}
+.btn-secondary:hover {
+    background-color: #4a6a69;
+}
+
+.book-content-display {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin-top: 30px;
+    opacity: 0; /* Caché jusqu'à l'accès */
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.book-content-display.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.book-content-display h2#modalBookTitle {
+    font-family: var(--font-heading);
+    font-size: 2.5em;
+    color: var(--color-accent-gold);
+    text-align: center;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px rgba(194, 139, 61, 0.5);
+}
+
+.book-content-display #modalBookContent {
+    font-family: var(--font-body);
+    font-size: 1.1em;
+    line-height: 1.8;
+    color: var(--color-text-light);
+    text-align: justify;
+}
+
+.book-content-display #modalBookContent p {
+    margin-bottom: 1em;
+}
+
+.book-content-display #modalBookContent h3 {
+    font-family: var(--font-heading);
+    color: var(--color-accent-silver);
+    font-size: 1.8em;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(169, 169, 169, 0.3);
+    padding-bottom: 10px;
+}
+
+.book-content-display #modalBookContent img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 25px auto;
+    display: block;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.music-player {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--color-dark-secondary);
+    border: 1px solid var(--color-accent-gold);
+    border-radius: 15px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 1500;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    max-width: 250px;
+}
+
+.music-player.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Image disque vinyle réduite */
+.vinyl-disc-container {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.vinyl-disc {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+    animation-play-state: paused;
+}
+
+.vinyl-disc.playing {
+    animation-play-state: running;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Infos de la piste, réduites */
+.track-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.song-title {
+    font-size: 0.85em;
+    color: var(--color-accent-gold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.song-artist {
+    font-size: 0.7em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+}
+
+/* Contrôles simples */
+.player-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.player-controls button {
+    background: none;
+    border: none;
+    color: var(--color-accent-silver);
+    font-size: 1.3em;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 0;
+}
+
+.player-controls button:hover {
+    color: var(--color-accent-gold);
+}
+
+.player-controls #playPauseBtn {
+    font-size: 1.5em;
+    color: var(--color-accent-gold);
+}
+
+.track-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.vinyl-disc-container {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    border-radius: 50%;
+    background-color: #000;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.5);
+    overflow: hidden; /* Pour s'assurer que le disque tourne bien à l'intérieur */
+}
+
+.vinyl-disc {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+    animation-play-state: paused; /* Pausé par défaut */
+}
+
+.vinyl-disc.playing {
+    animation-play-state: running;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.song-details {
+    display: flex;
+    flex-direction: column;
+    width: 200px; /* Largeur fixe pour l'info chanson */
+}
+
+.song-title {
+    font-family: var(--font-body);
+    font-size: 1.1em;
+    color: var(--color-accent-gold);
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* ... si le titre est trop long */
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: var(--color-accent-silver);
+    border-radius: 3px;
+    transition: width 0.1s linear; /* Animation douce de la barre */
+}
+
+.progress-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.time-display {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    color: var(--color-text-light);
+    text-align: right;
+}
+
+/* --- Animations globales (utilisées par GSAP) --- */
+@keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
