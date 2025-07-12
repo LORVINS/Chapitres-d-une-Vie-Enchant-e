@@ -511,14 +511,73 @@ body {
     z-index: 1500;
     opacity: 0;
     transform: translateX(100%);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    max-width: 250px;
+    transition: all 0.5s ease; /* Modifié pour transitionner la taille aussi */
+    max-width: 250px; /* Largeur par défaut */
 }
 
 .music-player.active {
     opacity: 1;
     transform: translateX(0);
 }
+
+/* Nouvelles règles pour le bouton de bascule */
+.toggle-player-btn {
+    position: absolute;
+    top: 50%;
+    /* Positionnement initial à droite du conteneur du vinyle (quand le lecteur est étendu) */
+    right: -15px; 
+    transform: translateY(-50%);
+    background: var(--color-dark-primary);
+    border: 1px solid var(--color-accent-gold);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--color-accent-silver);
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 10; /* S'assurer qu'il est au-dessus du vinyle */
+}
+
+.toggle-player-btn:hover {
+    background-color: var(--color-accent-gold);
+    color: var(--color-dark-primary);
+}
+
+/* Styles pour l'état réduit du lecteur */
+.music-player.minimized {
+    width: 100px; /* Largeur réduite pour ne montrer que le disque */
+    padding: 5px; /* Réduire le padding */
+    right: 10px; /* Ajuster la position si besoin */
+    bottom: 10px; /* Ajuster la position si besoin */
+    /* Assurez-vous que le positionnement général reste bon si vous changez le "right" et "bottom" */
+}
+
+.music-player.minimized .track-info {
+    opacity: 0;
+    pointer-events: none; /* Désactiver les interactions quand caché */
+    width: 0; /* Réduire la largeur à zéro pour que le flex ne prenne pas de place */
+    overflow: hidden; /* Cacher le contenu qui dépasse */
+    transition: opacity 0.3s ease, width 0.3s ease;
+}
+
+.music-player.minimized .toggle-player-btn {
+    /* Centrer le bouton sur le vinyle quand réduit (relativement au player) */
+    right: calc(50% - 15px); 
+    transform: translateY(-50%) rotate(180deg); /* Faire pivoter l'icône */
+}
+
+/* Ajuster le conteneur du vinyle pour l'état réduit si nécessaire, pour le centrer */
+.music-player.minimized .vinyl-disc-container {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto; /* Centrer le vinyle dans le lecteur réduit */
+}
+
 
 .vinyl-disc-container {
     width: 80px;
@@ -550,12 +609,13 @@ body {
 }
 
 .track-info {
-    flex: 1;
+    flex: 1; /* Prend l'espace restant dans le lecteur étendu */
     display: flex;
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
     gap: 5px;
+    transition: opacity 0.3s ease, width 0.3s ease; /* Ajouté pour la transition du track-info */
 }
 
 .song-details {
