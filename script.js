@@ -14,23 +14,23 @@ const BOOK_PASSWORDS = {
 };
 
 // --- Données des livres (à étendre) ---
-// Note: Les chemins des images sont des exemples. Assure-toi qu'elles existent dans assets/images/book_covers/
-// Le chemin du contenu est dans assets/content/ pour des fichiers HTML séparés.
+// IMPORTANT : Les chemins des images et des PDFs doivent être corrects.
+// Assure-toi que les images sont dans assets/images/book_covers/ et les PDFs dans assets/pdfs/
 const BOOKS_DATA = [
-    { id: "chapitre-01", title: "Le Secret des Échos", cover: "cover_book1.png" },
-    { id: "chapitre-02", title: "Sous l'Ombre des Étoiles", cover: "cover_book2.png" },
-    { id: "chapitre-03", title: "La Danse des Volutes", cover: "cover_book3.png" },
-    { id: "chapitre-04", title: "Les Murmures de la Forêt", cover: "cover_book4.png" },
-    { id: "chapitre-05", title: "L'Arbre aux Souvenirs", cover: "cover_book5.png" },
-    { id: "chapitre-06", title: "Le Chant du Crépuscule", cover: "cover_book6.png" },
-    { id: "chapitre-07", title: "Là où les Rêves S'envolent", cover: "cover_book7.png" },
-    { id: "chapitre-08", title: "L'Éclat de la Pierre Oubliée", cover: "cover_book8.png" },
-    { id: "chapitre-09", title: "Les Voiles du Passé", cover: "cover_book9.png" },
-    { id: "chapitre-10", title: "Vers l'Aube Nouvelle", cover: "cover_book10.png" },
+    { id: "chapitre-01", title: "Le Secret des Échos", cover: "cover_book1.png", pdfSrc: "Je-tai-perdue-mais-pas-mon-espoir_Livre_finalV5.pdf" },
+    { id: "chapitre-02", title: "Sous l'Ombre des Étoiles", cover: "cover_book2.png", pdfSrc: "assets/pdfs/chapitre-02.pdf" },
+    { id: "chapitre-03", title: "La Danse des Volutes", cover: "cover_book3.png", pdfSrc: "assets/pdfs/chapitre-03.pdf" },
+    { id: "chapitre-04", title: "Les Murmures de la Forêt", cover: "cover_book4.png", pdfSrc: "assets/pdfs/chapitre-04.pdf" },
+    { id: "chapitre-05", title: "L'Arbre aux Souvenirs", cover: "cover_book5.png", pdfSrc: "assets/pdfs/chapitre-05.pdf" },
+    { id: "chapitre-06", title: "Le Chant du Crépuscule", cover: "cover_book6.png", pdfSrc: "assets/pdfs/chapitre-06.pdf" },
+    { id: "chapitre-07", title: "Là où les Rêves S'envolent", cover: "cover_book7.png", pdfSrc: "assets/pdfs/chapitre-07.pdf" },
+    { id: "chapitre-08", title: "L'Éclat de la Pierre Oubliée", cover: "cover_book8.png", pdfSrc: "assets/pdfs/chapitre-08.pdf" },
+    { id: "chapitre-09", title: "Les Voiles du Passé", cover: "cover_book9.png", pdfSrc: "assets/pdfs/chapitre-09.pdf" },
+    { id: "chapitre-10", title: "Vers l'Aube Nouvelle", cover: "cover_book10.png", pdfSrc: "assets/pdfs/chapitre-10.pdf" },
 ];
 
 // --- Données des pistes musicales ---
-// Assure-toi d'avoir ces fichiers audio dans assets/audio/
+// IMPORTANT : Assure-toi d'avoir ces fichiers audio dans assets/audio/ avec ces noms exacts.
 const MUSIC_TRACKS = [
     { title: "Patrick Watson - Je te laisserai des mots", src:"Je te laisserai des mots.mp3" },
     { title: "Lana Del Rey - Cinnamon Girl (Lyrics)", src:"Cinnamon Girl.mp3" },
@@ -38,53 +38,130 @@ const MUSIC_TRACKS = [
     { title: "I Wanna Be Yours", src:"I Wanna Be Yours.mp3" },
 ];
 
-// --- Références aux éléments du DOM ---
+let currentTrackIndex = 0;
+let sound; // Variable pour l'instance Howl
+let isPlaying = false;
+let currentBookId = null;
+
+// --- Sélecteurs d'Éléments du DOM ---
 const accessOverlay = document.getElementById('accessOverlay');
 const mainPasswordInput = document.getElementById('mainPasswordInput');
 const enterButton = document.getElementById('enterButton');
 const errorMessage = document.getElementById('errorMessage');
 const mainContent = document.getElementById('mainContent');
-
+const currentDateSpan = document.getElementById('currentDate');
+const currentTimeSpan = document.getElementById('currentTime');
 const bookShelf = document.getElementById('bookShelf');
+
+// Modal du livre
 const bookModalOverlay = document.getElementById('bookModalOverlay');
-const bookModal = bookModalOverlay.querySelector('.book-modal');
-const closeBookModalBtn = bookModal.querySelector('.close-modal-btn');
+const bookModal = document.querySelector('.book-modal');
+const closeModalBtn = document.querySelector('.close-modal-btn');
 const bookCoverAnimation = document.getElementById('bookCoverAnimation');
-const animatedCover = bookCoverAnimation.querySelector('.animated-cover');
+const animatedCover = document.querySelector('.animated-cover');
 const bookPasswordPrompt = document.getElementById('bookPasswordPrompt');
 const bookPasswordInput = document.getElementById('bookPasswordInput');
 const verifyBookButton = document.getElementById('verifyBookButton');
 const bookErrorMessage = document.getElementById('bookErrorMessage');
 const bookContentDisplay = document.getElementById('bookContentDisplay');
 const modalBookTitle = document.getElementById('modalBookTitle');
-const modalBookContent = document.getElementById('modalBookContent');
+const pdfViewer = document.getElementById('pdfViewer'); // L'iframe pour le PDF
 
-const profilePic = document.querySelector('.profile-pic');
-const currentDateDisplay = document.getElementById('currentDate');
-const currentTimeDisplay = document.getElementById('currentTime');
-
+// Lecteur de musique
 const musicPlayer = document.getElementById('musicPlayer');
-const playPauseBtn = document.getElementById('playPauseBtn');
 const prevTrackBtn = document.getElementById('prevTrackBtn');
+const playPauseBtn = document.getElementById('playPauseBtn');
 const nextTrackBtn = document.getElementById('nextTrackBtn');
-const songTitleDisplay = document.getElementById('songTitle');
+const vinylDisc = document.getElementById('vinylDisc');
+const songTitleSpan = document.getElementById('songTitle');
 const progressBar = document.getElementById('progressBar');
 const progressOverlay = document.getElementById('progressOverlay');
-const currentTimeSong = document.getElementById('currentTimeDisplay');
-const durationTimeSong = document.getElementById('durationDisplay');
-const vinylDisc = document.getElementById('vinylDisc');
+const currentTimeDisplay = document.getElementById('currentTimeDisplay');
+const durationDisplay = document.getElementById('durationDisplay');
 
-let currentBookId = '';
-let sound = null; // Instance Howler.js
-let currentTrackIndex = 0;
-let isPlaying = false;
+// --- Fonctions Utilitaires ---
 
-// --- Fonctions utilitaires ---
 function showErrorMessage(element, message) {
     element.textContent = message;
     element.classList.add('show');
-    gsap.to(element, { opacity: 1, duration: 0.3 });
-    gsap.to(element, { opacity: 0, duration: 0.5, delay: 3, onComplete: () => element.classList.remove('show') });
+    gsap.fromTo(element, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.3 });
+    setTimeout(() => {
+        gsap.to(element, { opacity: 0, y: -10, duration: 0.3, onComplete: () => {
+            element.classList.remove('show');
+        }});
+    }, 3000);
+}
+
+function updateDateTime() {
+    const now = new Date();
+    const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
+    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    currentDateSpan.textContent = now.toLocaleDateString('fr-FR', optionsDate);
+    currentTimeSpan.textContent = now.toLocaleTimeString('fr-FR', optionsTime);
+}
+
+// --- Fonctions du Lecteur de Musique ---
+
+function loadTrack(index) {
+    if (sound) {
+        sound.stop();
+        sound.unload();
+    }
+    const track = MUSIC_TRACKS[index];
+    songTitleSpan.textContent = track.title;
+    sound = new Howl({
+        src: [track.src],
+        html5: true, // Utilisation de l'audio HTML5 pour un meilleur contrôle
+        onplay: () => {
+            isPlaying = true;
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            vinylDisc.classList.add('playing');
+            requestAnimationFrame(updateProgressBar);
+        },
+        onpause: () => {
+            isPlaying = false;
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            vinylDisc.classList.remove('playing');
+        },
+        onend: () => {
+            isPlaying = false;
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            vinylDisc.classList.remove('playing');
+            nextTrack(); // Passer à la piste suivante à la fin
+        },
+        onload: () => {
+            durationDisplay.textContent = formatTime(sound.duration());
+        }
+    });
+}
+
+function playPause() {
+    if (sound.playing()) {
+        sound.pause();
+    } else {
+        sound.play();
+    }
+}
+
+function nextTrack() {
+    currentTrackIndex = (currentTrackIndex + 1) % MUSIC_TRACKS.length;
+    loadTrack(currentTrackIndex);
+    sound.play();
+}
+
+function prevTrack() {
+    currentTrackIndex = (currentTrackIndex - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
+    loadTrack(currentTrackIndex);
+    sound.play();
+}
+
+function updateProgressBar() {
+    if (sound.playing()) {
+        const percent = (sound.seek() / sound.duration()) * 100;
+        progressBar.style.width = percent + '%';
+        currentTimeDisplay.textContent = formatTime(sound.seek());
+        requestAnimationFrame(updateProgressBar);
+    }
 }
 
 function formatTime(secs) {
@@ -93,113 +170,111 @@ function formatTime(secs) {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
-// --- Gestion de l'accès principal ---
-enterButton.addEventListener('click', () => {
-    if (mainPasswordInput.value === MAIN_PASSWORD) {
-        gsap.to(accessOverlay, { opacity: 0, duration: 1, ease: "power2.inOut", onComplete: () => {
-            accessOverlay.classList.add('hidden');
-            mainContent.classList.remove('hidden');
-            gsap.to(mainContent, { opacity: 1, duration: 1, ease: "power2.inOut" });
-            gsap.to(musicPlayer, { opacity: 1, x: 0, duration: 0.8, delay: 0.5, ease: "power2.out", onComplete: initMusicPlayer }); // Anime le lecteur
-            initSiteContent(); // Charge le reste du site
-        }});
-    } else {
-        showErrorMessage(errorMessage, "Incantation incorrecte. Le Grimoire reste scellé.");
-    }
-    mainPasswordInput.value = '';
-});
+function seek(event) {
+    const seekPos = (event.clientX - progressBar.getBoundingClientRect().left) / progressBar.offsetWidth;
+    sound.seek(sound.duration() * seekPos);
+}
 
-mainPasswordInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') enterButton.click();
-});
+// --- Fonctions d'Initialisation du Site ---
 
-// --- Initialisation du contenu du site après connexion ---
 function initSiteContent() {
-    updateDateTime();
-    setInterval(updateDateTime, 1000); // Met à jour date/heure toutes les secondes
-    loadBooksIntoShelf();
-    // Tu peux ajouter d'autres animations GSAP ici pour l'apparition des éléments de la page
+    gsap.to(accessOverlay, {
+        opacity: 0,
+        duration: 1,
+        ease: "power2.inOut",
+        onComplete: () => {
+            accessOverlay.style.display = 'none';
+            mainContent.classList.remove('hidden');
+            gsap.to(mainContent, { opacity: 1, duration: 1, ease: "power2.out" });
+            gsap.fromTo(musicPlayer, { x: '100%', opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, ease: "power2.out", delay: 0.5, onComplete: () => {
+                musicPlayer.classList.add('active');
+            }});
+            loadTrack(currentTrackIndex); // Charger la première piste
+            sound.play(); // Lancer la musique au démarrage du site
+            loadBooksIntoShelf();
+        }
+    });
 }
 
-// --- Mise à jour de la date et l'heure ---
-function updateDateTime() {
-    const now = new Date();
-    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    currentDateDisplay.textContent = now.toLocaleDateString('fr-FR', optionsDate);
-    currentTimeDisplay.textContent = now.toLocaleTimeString('fr-FR', optionsTime);
-}
-
-// --- Chargement des livres dans l'étagère ---
 function loadBooksIntoShelf() {
     BOOKS_DATA.forEach((bookData, index) => {
         const bookElement = document.createElement('div');
         bookElement.classList.add('book');
         bookElement.dataset.bookId = bookData.id;
 
-        // Structure 3D simplifiée pour le livre
-        bookElement.innerHTML = `
-            <div class="book-cover">
-                <div class="book-front" style="background-image: url(${bookData.cover});"></div>
-                <div class="book-spine"></div>
-            </div>
-            <div class="book-title-overlay">${bookData.title}</div>
-        `;
+        const bookCover = document.createElement('div');
+        bookCover.classList.add('book-cover');
+        bookCover.style.backgroundImage = `url(${bookData.cover})`;
+
+        const bookSpine = document.createElement('div');
+        bookSpine.classList.add('book-spine');
+
+        const bookTitleOverlay = document.createElement('div');
+        bookTitleOverlay.classList.add('book-title-overlay');
+        bookTitleOverlay.textContent = bookData.title;
+
+        bookCover.appendChild(bookTitleOverlay);
+        bookElement.appendChild(bookCover);
+        bookElement.appendChild(bookSpine);
+
         bookShelf.appendChild(bookElement);
 
-        // Animation au survol avec GSAP (facultatif si CSS suffit, mais GSAP est plus puissant)
-        // GSAP.to(bookElement, {
+        bookElement.addEventListener('click', () => openBookModal(bookData));
+
+        // Animation ScrollTrigger optionnelle pour les livres
+        // gsap.from(bookElement, {
+        //     opacity: 0,
+        //     y: 100,
+        //     rotationX: -90,
+        //     duration: 1,
+        //     ease: "power3.out",
         //     scrollTrigger: {
         //         trigger: bookElement,
-        //         start: "left center", // Anime quand le livre arrive au centre
-        //         toggleActions: "play none none none"
-        //     },
-        //     y: -20, rotationY: 5, scale: 1.05, duration: 0.6, ease: "power2.out",
-        //     paused: true // Laissera GSAP gérer le play/pause on scroll
+        //         start: "top 90%",
+        //         end: "bottom 60%",
+        //         toggleActions: "play none none none",
+        //         once: true,
+        //         markers: false // Mettre à true pour le débogage
+        //     }
         // });
-
-
-        bookElement.addEventListener('click', () => openBookModal(bookData));
     });
-
-    // Initialisation de ScrollTrigger pour les livres (si besoin d'animations au scroll)
-    // GSAP.utils.toArray(".book").forEach(book => {
-    //     GSAP.from(book, {
-    //         y: 50, opacity: 0, duration: 1, ease: "power3.out",
-    //         scrollTrigger: {
-    //             trigger: book,
-    //             start: "left 80%", // Quand 80% du livre est visible à gauche
-    //             containerAnimation: bookShelf, // Lie l'animation au défilement de l'étagère
-    //             toggleActions: "play none none none"
-    //         }
-    //     });
-    // });
 }
 
-// --- Gestion du modal du livre ---
+// --- Fonctions du Modal de Livre ---
+
 function openBookModal(bookData) {
     currentBookId = bookData.id;
     modalBookTitle.textContent = bookData.title;
-    animatedCover.src = bookData.cover; // Définit l'image de couverture pour l'animation
-
-    // Réinitialise l'état du modal
+    animatedCover.src = bookData.cover;
+    
+    // --- RÉINITIALISATION CRUCIALE DU MODAL POUR LES OUVERTURES ULTÉRIEURES ---
+    // 1. Réinitialiser l'iframe PDF
+    pdfViewer.src = ''; 
+    
+    // 2. Masquer le contenu du livre et s'assurer que le prompt est visible au début
     bookContentDisplay.classList.add('hidden');
-    bookContentDisplay.classList.remove('visible');
-    bookPasswordPrompt.classList.remove('hidden'); // S'assure que le prompt est visible
-    bookPasswordPrompt.style.display = 'block'; // S'assure que le prompt est visible
+    bookContentDisplay.classList.remove('visible'); // S'assurer que l'opacité est à 0
+    bookContentDisplay.style.opacity = 0; // Réinitialiser l'opacité CSS si elle persiste
+    
+    bookPasswordPrompt.classList.remove('hidden');
+    bookPasswordPrompt.style.display = 'block'; // S'assurer qu'il est affiché
+
+    // 3. Réinitialiser l'animation de couverture
+    bookCoverAnimation.style.display = 'block'; // Rendre la couverture visible
+    gsap.set(animatedCover, { rotationY: 0 }); // Réinitialiser la rotation de la couverture
+    bookCoverAnimation.classList.remove('flipped'); // S'assurer que la classe flipped est retirée
+
+    // 4. Réinitialiser les champs de mot de passe et messages d'erreur
+    bookPasswordInput.value = '';
     bookErrorMessage.classList.remove('show');
-    animatedCover.style.transform = 'rotateY(0deg)'; // Remet la couverture à l'endroit
+    // --- FIN RÉINITIALISATION ---
 
-    bookModalOverlay.classList.add('active'); // Active l'overlay
-    // Le reste de l'animation d'ouverture sera géré par GSAP ou CSS
+    bookModalOverlay.classList.add('active');
+    gsap.fromTo(bookModal,
+        { scale: 0.7, y: 50, opacity: 0 },
+        { scale: 1, y: 0, opacity: 1, duration: 0.6, ease: "power2.out" }
+    );
 }
-
-closeBookModalBtn.addEventListener('click', closeBookModal);
-bookModalOverlay.addEventListener('click', (e) => {
-    if (e.target === bookModalOverlay) { // Ferme si on clique en dehors du modal
-        closeBookModal();
-    }
-});
 
 function closeBookModal() {
     gsap.to(bookModal, {
@@ -211,46 +286,66 @@ function closeBookModal() {
         onComplete: () => {
             bookModalOverlay.classList.remove('active');
             currentBookId = '';
-            // Réinitialise l'animation de couverture pour la prochaine ouverture
-            bookCoverAnimation.classList.remove('flipped');
-            animatedCover.style.transform = 'rotateY(0deg)'; // Assure un état propre
+            
+            // --- RÉINITIALISATION CRUCIALE À LA FERMETURE POUR LA PROCHAINE OUVERTURE ---
+            // 1. Réinitialise l'état de la couverture d'animation
+            bookCoverAnimation.style.display = 'block'; // S'assurer que la couverture est visible pour le prochain livre
+            gsap.set(animatedCover, { rotationY: 0 }); // Réinitialiser sa rotation à 0 degrés
+            bookCoverAnimation.classList.remove('flipped'); // S'assurer que la classe "flipped" est retirée
+            
+            // 2. Réinitialise l'iframe PDF
+            pdfViewer.src = ''; // Très important de vider le src de l'iframe
+            
+            // 3. Masquer le contenu du livre et réafficher le prompt pour la prochaine fois
+            bookContentDisplay.classList.add('hidden');
+            bookContentDisplay.classList.remove('visible'); 
+            bookContentDisplay.style.opacity = 0; // Assurer une opacité à 0
+            
+            bookPasswordPrompt.classList.remove('hidden'); 
+            bookPasswordPrompt.style.display = 'block'; // S'assurer qu'il est affiché
+
+            // 4. Vider le champ mot de passe et cacher le message d'erreur
+            bookPasswordInput.value = ''; 
+            bookErrorMessage.classList.remove('show'); 
+            // --- FIN RÉINITIALISATION À LA FERMETURE ---
         }
     });
 }
 
+// Gestion de la vérification du mot de passe du livre
 verifyBookButton.addEventListener('click', async () => {
     const password = bookPasswordInput.value;
+    const currentBookData = BOOKS_DATA.find(book => book.id === currentBookId);
+
     if (password === BOOK_PASSWORDS[currentBookId]) {
-        // Animation de "flip" de la couverture
         gsap.to(animatedCover, {
-            rotationY: -180, // Fait pivoter la couverture de 180 degrés (pour révéler le "dos")
+            rotationY: -180,
             duration: 1,
             ease: "power3.inOut",
             onComplete: async () => {
+                // Masquer le prompt et afficher le contenu
                 bookPasswordPrompt.classList.add('hidden');
                 bookPasswordPrompt.style.display = 'none';
+
                 bookContentDisplay.classList.remove('hidden');
 
-                // Charger le contenu du fichier HTML
-                const contentPath = `content/${currentBookId}.html`;
-                try {
-                    const response = await fetch(contentPath);
-                    if (!response.ok) throw new Error('Contenu du chapitre non trouvé.');
-                    const htmlContent = await response.text();
-                    modalBookContent.innerHTML = htmlContent;
-
-                    gsap.fromTo(bookContentDisplay,
-                        { opacity: 0, y: 20 },
-                        { opacity: 1, y: 0, duration: 0.8, ease: "power2.out", onComplete: () => {
-                            bookContentDisplay.classList.add('visible');
-                        }}
-                    );
-
-                } catch (error) {
-                    console.error("Erreur de chargement du contenu du chapitre:", error);
-                    modalBookContent.innerHTML = "<p>Désolé, le contenu de ce chapitre est introuvable pour le moment.</p>";
-                    showErrorMessage(bookErrorMessage, "Problème de chargement du contenu.");
+                // Masquer l'animation de la couverture pour laisser le PDF apparaître
+                bookCoverAnimation.style.display = 'none'; 
+                
+                if (currentBookData && currentBookData.pdfSrc) {
+                    pdfViewer.src = currentBookData.pdfSrc; // Charger le PDF
+                } else {
+                    console.error("Chemin PDF non trouvé pour le livre:", currentBookId);
+                    showErrorMessage(bookErrorMessage, "Désolé, le PDF de ce chapitre est introuvable.");
                 }
+
+                // Animer l'apparition du contenu du livre (PDF)
+                gsap.fromTo(bookContentDisplay,
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: "power2.out", onComplete: () => {
+                        bookContentDisplay.classList.add('visible'); 
+                    }}
+                );
             }
         });
 
@@ -260,111 +355,32 @@ verifyBookButton.addEventListener('click', async () => {
     bookPasswordInput.value = '';
 });
 
-bookPasswordInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') verifyBookButton.click();
+
+// --- Écouteurs d'Événements ---
+
+// Accès initial au site
+enterButton.addEventListener('click', () => {
+    if (mainPasswordInput.value === MAIN_PASSWORD) {
+        initSiteContent();
+        // Optionnel : Désactiver l'écouteur après succès pour éviter des déclenchements multiples
+        enterButton.removeEventListener('click', this); 
+    } else {
+        showErrorMessage(errorMessage, "Mot de passe incorrect. L'accès est refusé.");
+    }
+    mainPasswordInput.value = ''; // Toujours vider le champ
 });
 
-// --- Lecteur de musique avec Howler.js ---
-function initMusicPlayer() {
-    sound = new Howl({
-        src: [MUSIC_TRACKS[currentTrackIndex].src],
-        html5: true, // Important pour le streaming et les longs fichiers
-        onplay: () => {
-            isPlaying = true;
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            vinylDisc.classList.add('playing');
-            requestAnimationFrame(step); // Lance la mise à jour de la barre de progression
-        },
-        onpause: () => {
-            isPlaying = false;
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            vinylDisc.classList.remove('playing');
-        },
-        onend: () => {
-            playNextTrack();
-        },
-        onload: () => {
-            durationTimeSong.textContent = formatTime(sound.duration());
-            songTitleDisplay.textContent = MUSIC_TRACKS[currentTrackIndex].title;
-        }
-    });
+// Fermeture du modal du livre
+closeModalBtn.addEventListener('click', closeBookModal);
 
-    // Initialisation du titre et durée
-    songTitleDisplay.textContent = MUSIC_TRACKS[currentTrackIndex].title;
-    // La durée sera mise à jour onload
+// Contrôles du lecteur de musique
+playPauseBtn.addEventListener('click', playPause);
+nextTrackBtn.addEventListener('click', nextTrack);
+prevTrackBtn.addEventListener('click', prevTrack);
+progressOverlay.addEventListener('click', seek);
 
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    prevTrackBtn.addEventListener('click', playPrevTrack);
-    nextTrackBtn.addEventListener('click', playNextTrack);
-    progressOverlay.addEventListener('click', seekTrack);
-}
-
-function togglePlayPause() {
-    if (sound.playing()) {
-        sound.pause();
-    } else {
-        sound.play();
-    }
-}
-
-function playNextTrack() {
-    currentTrackIndex = (currentTrackIndex + 1) % MUSIC_TRACKS.length;
-    loadTrack();
-}
-
-function playPrevTrack() {
-    currentTrackIndex = (currentTrackIndex - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
-    loadTrack();
-}
-
-function loadTrack() {
-    if (sound) sound.stop();
-    sound = new Howl({
-        src: [MUSIC_TRACKS[currentTrackIndex].src],
-        html5: true,
-        onplay: () => {
-            isPlaying = true;
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            vinylDisc.classList.add('playing');
-            requestAnimationFrame(step);
-        },
-        onpause: () => {
-            isPlaying = false;
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            vinylDisc.classList.remove('playing');
-        },
-        onend: () => {
-            playNextTrack();
-        },
-        onload: () => {
-            durationTimeSong.textContent = formatTime(sound.duration());
-            songTitleDisplay.textContent = MUSIC_TRACKS[currentTrackIndex].title;
-        }
-    });
-    sound.play();
-}
-
-function step() {
-    if (sound.playing()) {
-        const seek = sound.seek() || 0;
-        currentTimeSong.textContent = formatTime(seek);
-        progressBar.style.width = (((seek / sound.duration()) * 100) || 0) + '%';
-        requestAnimationFrame(step);
-    }
-}
-
-function seekTrack(event) {
-    if (sound && sound.duration()) {
-        const rect = progressOverlay.getBoundingClientRect();
-        const clickX = event.clientX - rect.left;
-        const width = rect.width;
-        const percent = clickX / width;
-        sound.seek(sound.duration() * percent);
-    }
-}
-
-// Initialisation au chargement de la page
+// --- Initialisation au Chargement de la Page ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Aucune action ici, tout est déclenché par le bouton "Entrer"
-    // pour s'assurer que les animations et le joueur ne démarrent qu'après le mot de passe principal.
+    updateDateTime();
+    setInterval(updateDateTime, 1000); // Mettre à jour l'heure chaque seconde
 });
