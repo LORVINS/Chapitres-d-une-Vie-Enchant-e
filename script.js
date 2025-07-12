@@ -40,7 +40,7 @@ const MUSIC_TRACKS = [
 
 let currentTrackIndex = 0;
 let sound; // Variable pour l'instance Howl
-let isPlaying = false;
+let isPlaying = false; // Initialisation correcte
 let currentBookId = null;
 
 // --- Sélecteurs d'Éléments du DOM ---
@@ -78,6 +78,9 @@ const progressBar = document.getElementById('progressBar');
 const progressOverlay = document.getElementById('progressOverlay');
 const currentTimeDisplay = document.getElementById('currentTimeDisplay');
 const durationDisplay = document.getElementById('durationDisplay');
+// NOUVEAU SÉLECTEUR POUR LE BOUTON DE BASCULE
+const togglePlayerBtn = document.getElementById('togglePlayerBtn');
+
 
 // --- Fonctions Utilitaires ---
 
@@ -131,6 +134,10 @@ function loadTrack(index) {
         },
         onload: () => {
             durationDisplay.textContent = formatTime(sound.duration());
+            // Si la piste est chargée et que le lecteur était en pause/stop, s'assurer que le disque est arrêté.
+            if (!isPlaying) {
+                vinylDisc.classList.remove('playing');
+            }
         }
     });
 }
@@ -146,21 +153,32 @@ function playPause() {
 function nextTrack() {
     currentTrackIndex = (currentTrackIndex + 1) % MUSIC_TRACKS.length;
     loadTrack(currentTrackIndex);
-    sound.play();
+    if (isPlaying) { // Jouer seulement si c'était en lecture avant de changer de piste
+        sound.play();
+    }
 }
 
 function prevTrack() {
     currentTrackIndex = (currentTrackIndex - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
     loadTrack(currentTrackIndex);
-    sound.play();
+    if (isPlaying) { // Jouer seulement si c'était en lecture avant de changer de piste
+        sound.play();
+    }
 }
 
 function updateProgressBar() {
-    if (sound.playing()) {
+    if (sound && sound.playing()) { // Vérifier si sound existe et est en lecture
         const percent = (sound.seek() / sound.duration()) * 100;
         progressBar.style.width = percent + '%';
         currentTimeDisplay.textContent = formatTime(sound.seek());
         requestAnimationFrame(updateProgressBar);
+    } else if (sound && !sound.playing() && isPlaying) {
+        // Si sound existe mais ne joue plus et isPlaying est toujours vrai, c'est que la lecture s'est arrêtée
+        // sans passer par onend/onpause (ex: erreur ou fin de la piste si onend n'est pas appelé)
+        // Mettre à jour isPlaying à false pour refléter l'état réel.
+        isPlaying = false;
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        vinylDisc.classList.remove('playing');
     }
 }
 
@@ -171,8 +189,23 @@ function formatTime(secs) {
 }
 
 function seek(event) {
-    const seekPos = (event.clientX - progressBar.getBoundingClientRect().left) / progressBar.offsetWidth;
-    sound.seek(sound.duration() * seekPos);
+    if (sound && sound.duration() > 0) { // S'assurer que la piste est chargée
+        const seekPos = (event.clientX - progressOverlay.getBoundingClientRect().left) / progressOverlay.offsetWidth;
+        sound.seek(sound.duration() * seekPos);
+    }
+}
+
+// NOUVELLE FONCTION : Basculer la minimisation du lecteur
+function togglePlayerMinimization() {
+    musicPlayer.classList.toggle('minimized');
+    const icon = togglePlayerBtn.querySelector('i');
+    if (musicPlayer.classList.contains('minimized')) {
+        icon.classList.remove('fa-chevron-left');
+        icon.classList.add('fa-chevron-right'); // Changer l'icône quand réduit
+    } else {
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-left'); // Revenir à l'icône d'origine
+    }
 }
 
 // --- Fonctions d'Initialisation du Site ---
@@ -186,17 +219,56 @@ function initSiteContent() {
             accessOverlay.style.display = 'none';
             mainContent.classList.remove('hidden');
             gsap.to(mainContent, { opacity: 1, duration: 1, ease: "power2.out" });
-            gsap.fromTo(musicPlayer, { x: '100%', opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, ease: "power2.out", delay: 0.5, onComplete: () => {
-                musicPlayer.classList.add('active');
-            }});
+            // Animation du music player
+            gsap.fromTo(musicPlayer, 
+                { x: '100%', opacity: 0 }, 
+                { 
+                    x: 0, 
+                    opacity: 1, 
+                    duration: 0.8, 
+                    ease: "power2.out", 
+                    delay: 0.5, 
+                    onComplete: () => {
+                        musicPlayer.classList.add('active'); // S'assurer qu'il est "actif" une fois visible
+                    }
+                }
+            );
             loadTrack(currentTrackIndex); // Charger la première piste
-            sound.play(); // Lancer la musique au démarrage du site
+            // Vérifier si sound est prêt avant de tenter de jouer
+            if (sound && typeof sound.play === 'function') {
+                sound.play(); // Lancer la musique au démarrage du site
+            } else {
+                // Si sound n'est pas prêt, ajouter un petit délai ou un écouteur onload pour le jouer
+                sound.once('load', function() {
+                    sound.play();
+                });
+            }
             loadBooksIntoShelf();
         }
     });
 }
 
 function loadBooksIntoShelf() {
+    // IMPORTANT : Assurez-vous que BOOKS_DATA et BOOK_PASSWORDS sont définis ailleurs dans votre script ou un autre fichier js inclus.
+    // Exemple de structure attendue pour BOOKS_DATA et BOOK_PASSWORDS:
+    /*
+    const BOOKS_DATA = [
+        { id: 'chapitre1', title: 'Le Réveil des Anciens', cover: 'assets/covers/cover1.jpg', pdfSrc: 'assets/pdfs/chapitre1.pdf' },
+        { id: 'chapitre2', title: 'Les Murmures Oubliés', cover: 'assets/covers/cover2.jpg', pdfSrc: 'assets/pdfs/chapitre2.pdf' },
+    ];
+    const BOOK_PASSWORDS = {
+        'chapitre1': 'motdepasse1',
+        'chapitre2': 'motdepasse2',
+    };
+    const MAIN_PASSWORD = 'motdepassemain';
+    */
+
+    // Vérifier si BOOKS_DATA existe avant de l'utiliser
+    if (typeof BOOKS_DATA === 'undefined') {
+        console.error("BOOKS_DATA n'est pas défini. Assurez-vous que vos données de livres sont chargées avant d'appeler loadBooksIntoShelf().");
+        return;
+    }
+
     BOOKS_DATA.forEach((bookData, index) => {
         const bookElement = document.createElement('div');
         bookElement.classList.add('book');
@@ -317,6 +389,13 @@ verifyBookButton.addEventListener('click', async () => {
     const password = bookPasswordInput.value;
     const currentBookData = BOOKS_DATA.find(book => book.id === currentBookId);
 
+    // Vérifier si BOOK_PASSWORDS est défini et si le mot de passe existe pour ce livre
+    if (typeof BOOK_PASSWORDS === 'undefined') {
+        console.error("BOOK_PASSWORDS n'est pas défini. Assurez-vous que vos mots de passe de livres sont chargés.");
+        showErrorMessage(bookErrorMessage, "Erreur de configuration. Veuillez contacter l'administrateur.");
+        return;
+    }
+
     if (password === BOOK_PASSWORDS[currentBookId]) {
         gsap.to(animatedCover, {
             rotationY: -180,
@@ -360,6 +439,14 @@ verifyBookButton.addEventListener('click', async () => {
 
 // Accès initial au site
 enterButton.addEventListener('click', () => {
+    // Vérifier si MAIN_PASSWORD est défini
+    if (typeof MAIN_PASSWORD === 'undefined') {
+        console.error("MAIN_PASSWORD n'est pas défini. Assurez-vous que le mot de passe principal est configuré.");
+        showErrorMessage(errorMessage, "Erreur de configuration. Veuillez contacter l'administrateur.");
+        mainPasswordInput.value = '';
+        return;
+    }
+
     if (mainPasswordInput.value === MAIN_PASSWORD) {
         initSiteContent();
         // Optionnel : Désactiver l'écouteur après succès pour éviter des déclenchements multiples
@@ -378,6 +465,9 @@ playPauseBtn.addEventListener('click', playPause);
 nextTrackBtn.addEventListener('click', nextTrack);
 prevTrackBtn.addEventListener('click', prevTrack);
 progressOverlay.addEventListener('click', seek);
+// NOUVEL ÉCOUTEUR POUR LE BOUTON DE BASCULE DU LECTEUR
+togglePlayerBtn.addEventListener('click', togglePlayerMinimization);
+
 
 // --- Initialisation au Chargement de la Page ---
 document.addEventListener('DOMContentLoaded', () => {
