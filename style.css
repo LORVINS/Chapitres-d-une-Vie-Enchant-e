@@ -230,7 +230,7 @@ body {
 
 .book {
     flex-shrink: 0;
-    width: 250px; /* Plus grand */
+    width: 250px; /* Taille standard des livres dans la bibliothèque */
     height: 350px;
     perspective: 1000px; /* Pour les transformations 3D */
     cursor: pointer;
@@ -254,6 +254,11 @@ body {
     transform-style: preserve-3d;
     transition: transform 0.6s ease-out;
     transform-origin: left center; /* Point de pivot pour l'ouverture */
+    background-size: cover; /* Assure que l'image de la couverture remplit l'espace */
+    background-position: center; /* Centre l'image de la couverture */
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    background-color: var(--color-dark-secondary); /* Fallback */
 }
 
 .book-front, .book-spine {
@@ -261,16 +266,16 @@ body {
     top: 0;
     left: 0;
     height: 100%;
-    background-size: cover;
-    background-position: center;
+    /* background-size: cover; <- Ces lignes sont maintenant dans .book-cover */
+    /* background-position: center; <- Ces lignes sont maintenant dans .book-cover */
     border-radius: 8px; /* Bords légèrement arrondis */
     backface-visibility: hidden; /* Cache l'arrière de la face */
 }
 
 .book-front {
     width: 100%;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-    background-color: var(--color-dark-secondary); /* Fallback */
+    /* box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); <- Déjà dans .book-cover */
+    /* background-color: var(--color-dark-secondary); <- Déjà dans .book-cover */
 }
 
 .book-spine {
@@ -326,14 +331,19 @@ body {
     border-radius: 15px;
     padding: 40px;
     box-shadow: 0 0 60px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(194, 139, 61, 0.4);
-    max-width: 900px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
     position: relative;
     transform: scale(0.7) translateY(50px);
     opacity: 0;
     transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease; /* Animation "rebond" */
+    
+    width: 90%;
+    max-width: 1000px;
+    height: 90%;
+    max-height: 800px;
+    
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .book-modal-overlay.active .book-modal {
@@ -359,24 +369,24 @@ body {
 }
 
 .book-cover-animation {
-    width: 200px;
-    height: 280px;
+    width: 200px; /* Taille fixe pour l'animation de couverture dans le modal */
+    height: 280px; /* Taille fixe pour l'animation de couverture dans le modal */
     margin: 0 auto 30px;
     perspective: 1000px;
     position: relative;
-    overflow: hidden; /* Pour cacher le contenu avant le flip */
+    overflow: hidden;
     transition: height 0.6s ease;
 }
 
 .book-cover-animation .animated-cover {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 100%; /* L'image remplit la largeur de son conteneur */
+    height: 100%; /* L'image remplit la hauteur de son conteneur */
+    object-fit: contain; /* C'est la CLÉ : l'image est redimensionnée pour tenir ENTIÈREMENT dans le conteneur sans être coupée, gardant ses proportions. Utilisez 'cover' si vous voulez qu'elle remplisse tout l'espace quitte à être coupée. */
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     position: absolute;
     transform-origin: left center;
-    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Animation de flip */
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
 /* État d'ouverture du livre (flippé) */
@@ -426,9 +436,14 @@ body {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     margin-top: 30px;
-    opacity: 0; /* Caché jusqu'à l'accès */
+    opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.8s ease, transform 0.8s ease;
+
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 .book-content-display.visible {
     opacity: 1;
@@ -444,7 +459,11 @@ body {
     text-shadow: 0 0 10px rgba(194, 139, 61, 0.5);
 }
 
-.book-content-display #modalBookContent {
+/* L'iframe PDF est géré par son style inline dans index.html et prend la taille restante */
+/* #pdfViewer { ... } */
+
+/* Les règles suivantes sont pour le contenu textuel/HTML, non l'iframe PDF */
+.book-content-display #modalBookContent { /* Cette règle ne s'applique plus au PDF, mais au texte si réactivé */
     font-family: var(--font-body);
     font-size: 1.1em;
     line-height: 1.8;
@@ -476,6 +495,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* --- Music Player --- */
 .music-player {
     position: fixed;
     bottom: 20px;
@@ -500,11 +520,13 @@ body {
     transform: translateX(0);
 }
 
-/* Image disque vinyle réduite */
 .vinyl-disc-container {
-    width: 40px;
-    height: 40px;
+    width: 80px;
+    height: 80px;
+    position: relative;
     border-radius: 50%;
+    background-color: #000;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     flex-shrink: 0;
 }
@@ -523,34 +545,67 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
-/* Infos de la piste, réduites */
 .track-info {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
+    gap: 5px;
+}
+
+.song-details {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .song-title {
-    font-size: 0.85em;
+    font-family: var(--font-body);
+    font-size: 1.1em;
     color: var(--color-accent-gold);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.song-artist {
-    font-size: 0.7em;
-    color: var(--color-text-light);
-    opacity: 0.7;
+.progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    margin-bottom: 5px;
 }
 
-/* Contrôles simples */
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: var(--color-accent-silver);
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+.progress-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.time-display {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    color: var(--color-text-light);
+    text-align: right;
+}
+
 .player-controls {
     display: flex;
     align-items: center;
@@ -574,89 +629,6 @@ body {
 .player-controls #playPauseBtn {
     font-size: 1.5em;
     color: var(--color-accent-gold);
-}
-
-.track-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.vinyl-disc-container {
-    width: 80px;
-    height: 80px;
-    position: relative;
-    border-radius: 50%;
-    background-color: #000;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.5);
-    overflow: hidden; /* Pour s'assurer que le disque tourne bien à l'intérieur */
-}
-
-.vinyl-disc {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    animation: spin 10s linear infinite;
-    animation-play-state: paused; /* Pausé par défaut */
-}
-
-.vinyl-disc.playing {
-    animation-play-state: running;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.song-details {
-    display: flex;
-    flex-direction: column;
-    width: 200px; /* Largeur fixe pour l'info chanson */
-}
-
-.song-title {
-    font-family: var(--font-body);
-    font-size: 1.1em;
-    color: var(--color-accent-gold);
-    margin-bottom: 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* ... si le titre est trop long */
-}
-
-.progress-bar-container {
-    width: 100%;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    position: relative;
-    cursor: pointer;
-    margin-bottom: 5px;
-}
-
-.progress-bar {
-    height: 100%;
-    width: 0%;
-    background-color: var(--color-accent-silver);
-    border-radius: 3px;
-    transition: width 0.1s linear; /* Animation douce de la barre */
-}
-
-.progress-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.time-display {
-    font-family: 'Courier New', monospace;
-    font-size: 0.85em;
-    color: var(--color-text-light);
-    text-align: right;
 }
 
 /* --- Animations globales (utilisées par GSAP) --- */
