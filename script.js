@@ -20,6 +20,9 @@ const BOOK_PASSWORDS = {
     "chapitre-17": "horizonPromis",
     "chapitre-18": "horizonPromis",
     "chapitre-19": "horizonPromis",
+    "chapitre-20": "horizonPromis",
+    "chapitre-21": "horizonPromis",
+    "chapitre-22": "horizonPromis",
 };
 
 // --- Données des livres (à étendre) ---
@@ -46,6 +49,9 @@ const BOOKS_DATA = [
     { id: "chapitre-17", title: "L'aventure de Lola, une aventurière de tout genre", cover: "cover_book18.gif", pdfSrc: "assets/pdfs/chapitre-18.pdf" },
     { id: "chapitre-18", title: "Ma vie sans l'amour de ma vie", cover: "cover_book19.gif", pdfSrc: "assets/pdfs/chapitre-19.pdf" },
     { id: "chapitre-19", title: "La rencontre pour retrouver nos chemins amoureuse", cover: "cover_book20.gif", pdfSrc: "assets/pdfs/chapitre-20.pdf" },
+    { id: "chapitre-20", title: "La chase au loup blanc, que la paix soit avec toi", cover: "cover_book21.gif", pdfSrc: "assets/pdfs/chapitre-21.pdf" },
+    { id: "chapitre-21", title: "Les 2 inséparable, dans le monde de Naye", cover: "cover_book22.gif", pdfSrc: "assets/pdfs/chapitre-22.pdf" },
+    { id: "chapitre-22", title: "Dans le rêve de Paul l'écolier", cover: "cover_book23.gif", pdfSrc: "assets/pdfs/chapitre-23.pdf" },
 ];
 
 // --- Données des pistes musicales ---
