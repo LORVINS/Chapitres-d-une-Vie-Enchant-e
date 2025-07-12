@@ -11,6 +11,11 @@ const BOOK_PASSWORDS = {
     "chapitre-08": "pontDesSoupirs",
     "chapitre-09": "echoDuPassage",
     "chapitre-10": "horizonPromis",
+    "chapitre-11": "horizonPromis",
+    "chapitre-12": "horizonPromis",
+    "chapitre-13": "horizonPromis",
+    "chapitre-14": "horizonPromis",
+    "chapitre-15": "horizonPromis",
 };
 
 // --- Données des livres (à étendre) ---
@@ -27,6 +32,11 @@ const BOOKS_DATA = [
     { id: "chapitre-08", title: "L'Éclat de la Pierre Oubliée", cover: "cover_book8.png", pdfSrc: "assets/pdfs/chapitre-08.pdf" },
     { id: "chapitre-09", title: "Les Voiles du Passé", cover: "cover_book9.png", pdfSrc: "assets/pdfs/chapitre-09.pdf" },
     { id: "chapitre-10", title: "Vers l'Aube Nouvelle", cover: "cover_book10.png", pdfSrc: "assets/pdfs/chapitre-10.pdf" },
+    { id: "chapitre-11", title: "L'arrivée du jour", cover: "cover_book11.gif", pdfSrc: "assets/pdfs/chapitre-11.pdf" },
+    { id: "chapitre-12", title: "L'histoire d'Aurelie", cover: "cover_book12.gif", pdfSrc: "assets/pdfs/chapitre-12.pdf" },
+    { id: "chapitre-12", title: "Le monde à l'envers", cover: "cover_book13.gif", pdfSrc: "assets/pdfs/chapitre-13.pdf" },
+    { id: "chapitre-13", title: "Le monde sous l'océan de Madacascar", cover: "cover_book14.gif", pdfSrc: "assets/pdfs/chapitre-14.pdf" },
+    { id: "chapitre-14", title: "Un Noel pas comme les autres, mais avec l'espoir", cover: "cover_book15.gif", pdfSrc: "assets/pdfs/chapitre-15.pdf" },
 ];
 
 // --- Données des pistes musicales ---
