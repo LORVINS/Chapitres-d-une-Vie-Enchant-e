@@ -16,6 +16,10 @@ const BOOK_PASSWORDS = {
     "chapitre-13": "horizonPromis",
     "chapitre-14": "horizonPromis",
     "chapitre-15": "horizonPromis",
+    "chapitre-16": "horizonPromis",
+    "chapitre-17": "horizonPromis",
+    "chapitre-18": "horizonPromis",
+    "chapitre-19": "horizonPromis",
 };
 
 // --- Données des livres (à étendre) ---
@@ -37,6 +41,11 @@ const BOOKS_DATA = [
     { id: "chapitre-12", title: "Le monde à l'envers", cover: "cover_book13.gif", pdfSrc: "assets/pdfs/chapitre-13.pdf" },
     { id: "chapitre-13", title: "Le monde sous l'océan de Madacascar", cover: "cover_book14.gif", pdfSrc: "assets/pdfs/chapitre-14.pdf" },
     { id: "chapitre-14", title: "Un Noel pas comme les autres, mais avec l'espoir", cover: "cover_book15.gif", pdfSrc: "assets/pdfs/chapitre-15.pdf" },
+    { id: "chapitre-15", title: "L'attente interminable, mais l'espoir est bien présent", cover: "cover_book16.gif", pdfSrc: "assets/pdfs/chapitre-16.pdf" },
+    { id: "chapitre-16", title: "L'appel attendu, mais toujours dans l'attente", cover: "cover_book17.gif", pdfSrc: "assets/pdfs/chapitre-17.pdf" },
+    { id: "chapitre-17", title: "L'aventure de Lola, une aventurière de tout genre", cover: "cover_book18.gif", pdfSrc: "assets/pdfs/chapitre-18.pdf" },
+    { id: "chapitre-18", title: "Ma vie sans l'amour de ma vie", cover: "cover_book19.gif", pdfSrc: "assets/pdfs/chapitre-19.pdf" },
+    { id: "chapitre-19", title: "La rencontre pour retrouver nos chemins amoureuse", cover: "cover_book20.gif", pdfSrc: "assets/pdfs/chapitre-20.pdf" },
 ];
 
 // --- Données des pistes musicales ---
@@ -49,6 +58,7 @@ const MUSIC_TRACKS = [
     { title: "Home", src:"Home.mp3" },
     { title: "Watermelon Sugar", src:"Watermelon Sugar.mp3" },
     { title: "Those Eyes", src:"Those Eyes.mp3" },
+    { title: "Car's Outside", src:"Car's Outside.mp3" },
 ];
 
 let currentTrackIndex = 0;
