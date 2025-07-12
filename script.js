@@ -1,11 +1,11 @@
 // --- Mots de passe secrets (À PERSONNALISER ABSOLUMENT !) ---
-const MAIN_PASSWORD = "2109";
+const MAIN_PASSWORD = "1703";
 const BOOK_PASSWORDS = {
-    "chapitre-01": "reveAncien",
+    "chapitre-01": "2803",
     "chapitre-02": "ombreSilencieuse",
     "chapitre-03": "destinTisse",
     "chapitre-04": "coeurVaillant",
-    "chapitre-05": "melodieOubliee",
+    "chapitre-05": "2109",
     "chapitre-06": "foretEndormie",
     "chapitre-07": "etoileGuiding",
     "chapitre-08": "pontDesSoupirs",
