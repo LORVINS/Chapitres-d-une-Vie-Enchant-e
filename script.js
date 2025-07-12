@@ -46,6 +46,9 @@ const MUSIC_TRACKS = [
     { title: "Lana Del Rey - Cinnamon Girl (Lyrics)", src:"Cinnamon Girl.mp3" },
     { title: "yung kai - blue", src:"blue.mp3" },
     { title: "I Wanna Be Yours", src:"I Wanna Be Yours.mp3" },
+    { title: "Home", src:"Home.mp3" },
+    { title: "Watermelon Sugar", src:"Watermelon Sugar.mp3" },
+    { title: "Those Eyes", src:"Those Eyes.mp3" },
 ];
 
 let currentTrackIndex = 0;
